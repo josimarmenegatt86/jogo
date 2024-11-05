@@ -55,8 +55,7 @@
       box-sizing: border-box;
     }
 
-    .card.flipped,
-    .card.matched {
+    .card.flipped {
       background-color: #ecf0f1;
       color: #3498db;
       cursor: default;
@@ -64,9 +63,10 @@
     }
 
     .card.matched {
-      visibility: hidden;
+      background-color: #2ecc71; /* Cor verde para cartas corretas */
+      color: #fff;
+      pointer-events: none; /* Desativa os cliques para cartas corretas */
     }
-
   </style>
 </head>
 <body>
@@ -154,7 +154,7 @@
       // Inicia o cronômetro na primeira jogada
       if (timeElapsed === 0) startTimer();
 
-      if (flippedCards.length < 2 && !this.classList.contains('flipped')) {
+      if (flippedCards.length < 2 && !this.classList.contains('flipped') && !this.classList.contains('matched')) {
         this.classList.add('flipped');
         this.innerText = this.dataset.content; // Mostra o conteúdo da carta
         flippedCards.push(this);
@@ -203,7 +203,7 @@
         card1.innerText = '';
         card2.innerText = '';
         flippedCards = [];
-      }, 5000); // Tempo aumentado para 5 segundos
+      }, 500); // Tempo para virar de volta as cartas erradas
       updateScore(-2); // Deduz 2 pontos para cada erro
     }
 
