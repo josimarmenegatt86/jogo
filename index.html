@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Conceitos SQL</title>
+  <title>Jogo da Memória - Conceitos SQL</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -80,14 +80,14 @@
 
   <script>
     const cardsData = [
-      { term: "SELECT", concept: "Extrai dados de um banco de dados" },
-      { term: "INSERT", concept: "Insere novos dados em uma tabela" },
-      { term: "DELETE", concept: "Remove dados de uma tabela" },
-      { term: "UPDATE", concept: "Modifica dados existentes em uma tabela" },
-      { term: "CREATE", concept: "Cria uma nova tabela ou banco de dados" },
-      { term: "DROP", concept: "Exclui uma tabela ou banco de dados" },
-      { term: "ALTER", concept: "Modifica a estrutura de uma tabela" },
-      { term: "JOIN", concept: "Combina registros de várias tabelas" }
+      { term: "SELECT", concept: "Extrai dados de um banco de dados", pairId: 1 },
+      { term: "INSERT", concept: "Insere novos dados em uma tabela", pairId: 2 },
+      { term: "DELETE", concept: "Remove dados de uma tabela", pairId: 3 },
+      { term: "UPDATE", concept: "Modifica dados existentes em uma tabela", pairId: 4 },
+      { term: "CREATE", concept: "Cria uma nova tabela ou banco de dados", pairId: 5 },
+      { term: "DROP", concept: "Exclui uma tabela ou banco de dados", pairId: 6 },
+      { term: "ALTER", concept: "Modifica a estrutura de uma tabela", pairId: 7 },
+      { term: "JOIN", concept: "Combina registros de várias tabelas", pairId: 8 }
     ];
 
     let flippedCards = [];
@@ -96,7 +96,6 @@
     let timer;
     let timeElapsed = 0;
 
-    // Função para iniciar o cronômetro
     function startTimer() {
       timer = setInterval(() => {
         timeElapsed++;
@@ -104,12 +103,10 @@
       }, 1000);
     }
 
-    // Função para parar o cronômetro
     function stopTimer() {
       clearInterval(timer);
     }
 
-    // Embaralha as cartas (Fisher-Yates Shuffle)
     function shuffle(array) {
       for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -117,29 +114,26 @@
       }
     }
 
-    // Atualiza a pontuação na interface
     function updateScore(points) {
       score += points;
       document.getElementById('scoreBoard').innerText = `Pontuação: ${score}`;
     }
 
-    // Cria o tabuleiro de cartas
     function createBoard() {
       const gameBoard = document.getElementById('gameBoard');
       const deck = [];
 
-      // Prepara o deck com pares de palavras e conceitos
-      cardsData.forEach((item, index) => {
-        deck.push({ id: index * 2, content: item.term, type: "term" });
-        deck.push({ id: index * 2 + 1, content: item.concept, type: "concept" });
+      // Prepara o deck com pares de termos e conceitos associados ao mesmo pairId
+      cardsData.forEach((item) => {
+        deck.push({ content: item.term, type: "term", pairId: item.pairId });
+        deck.push({ content: item.concept, type: "concept", pairId: item.pairId });
       });
 
-      // Embaralha o deck e cria as cartas
       shuffle(deck);
       deck.forEach((cardData) => {
         const card = document.createElement('div');
         card.classList.add('card');
-        card.dataset.id = cardData.id;
+        card.dataset.pairId = cardData.pairId; // Atribui o parId para comparação
         card.dataset.type = cardData.type;
         card.dataset.content = cardData.content;
         card.setAttribute('aria-label', `Carta: ${cardData.content}`);
@@ -149,14 +143,12 @@
       });
     }
 
-    // Função para virar a carta
     function flipCard() {
-      // Inicia o cronômetro na primeira jogada
       if (timeElapsed === 0) startTimer();
 
       if (flippedCards.length < 2 && !this.classList.contains('flipped') && !this.classList.contains('matched')) {
         this.classList.add('flipped');
-        this.innerText = this.dataset.content; // Mostra o conteúdo da carta
+        this.innerText = this.dataset.content;
         flippedCards.push(this);
 
         if (flippedCards.length === 2) {
@@ -165,13 +157,9 @@
       }
     }
 
-    // Verifica se as cartas viradas são um par
     function checkMatch() {
       const [card1, card2] = flippedCards;
-      const isMatch = (
-        (card1.dataset.type === "term" && card2.dataset.type === "concept" && card1.dataset.content === card2.dataset.content) ||
-        (card1.dataset.type === "concept" && card2.dataset.type === "term" && card1.dataset.content === card2.dataset.content)
-      );
+      const isMatch = card1.dataset.pairId === card2.dataset.pairId; // Compara pelo pairId
 
       if (isMatch) {
         handleMatch(card1, card2);
@@ -180,22 +168,19 @@
       }
     }
 
-    // Lida com cartas que são um par
     function handleMatch(card1, card2) {
       card1.classList.add('matched');
       card2.classList.add('matched');
       flippedCards = [];
       matchedCards += 2;
-      updateScore(10); // Adiciona 10 pontos para um par correto
+      updateScore(10);
 
-      // Verifica se o jogo terminou
       if (matchedCards === cardsData.length * 2) {
-        stopTimer(); // Para o cronômetro
+        stopTimer();
         setTimeout(() => alert(`Parabéns! Você completou o jogo com ${score} pontos em ${timeElapsed} segundos!`), 500);
       }
     }
 
-    // Lida com cartas que não são um par
     function handleMismatch(card1, card2) {
       setTimeout(() => {
         card1.classList.remove('flipped');
@@ -203,11 +188,10 @@
         card1.innerText = '';
         card2.innerText = '';
         flippedCards = [];
-      }, 500); // Tempo para virar de volta as cartas erradas
-      updateScore(-2); // Deduz 2 pontos para cada erro
+      }, 500);
+      updateScore(-2);
     }
 
-    // Inicia o jogo
     createBoard();
   </script>
 
